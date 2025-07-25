@@ -1,11 +1,18 @@
 import streamlit as st
 import os
-from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 
 # 環境変数を読み込み
 load_dotenv()
+
+# LangChainライブラリのインポート（エラーハンドリング付き）
+try:
+    from langchain_core.messages import HumanMessage, SystemMessage
+    from langchain_openai import ChatOpenAI
+except ImportError as e:
+    st.error(f"必要なライブラリがインストールされていません: {e}")
+    st.error("requirements.txtに記載されているライブラリをインストールしてください。")
+    st.stop()
 
 st.title("AI専門家相談アプリ")
 
