@@ -61,14 +61,23 @@ def get_ai_response(user_input: str, expert_type: str) -> str:
     }
     
     try:
-        # APIキーの取得（環境変数またはst.secretsから）
+        # APIキーの取得（環境変数を優先、次にst.secrets）
         api_key = None
-        if "OPENAI_API_KEY" in st.secrets:
-            api_key = st.secrets["OPENAI_API_KEY"]
-        elif "OPENAI_API_KEY" in os.environ:
+        
+        # 環境変数から取得を試行
+        if "OPENAI_API_KEY" in os.environ:
             api_key = os.environ["OPENAI_API_KEY"]
         else:
-            return "⚠️ OpenAI APIキーが設定されていません。環境変数またはStreamlit Community Cloudのシークレット設定でOPENAI_API_KEYを設定してください。"
+            # st.secretsから取得を試行（エラーハンドリング付き）
+            try:
+                if "OPENAI_API_KEY" in st.secrets:
+                    api_key = st.secrets["OPENAI_API_KEY"]
+            except Exception:
+                # st.secretsが利用できない場合は無視
+                pass
+        
+        if not api_key:
+            return "⚠️ OpenAI APIキーが設定されていません。環境変数（OPENAI_API_KEY）またはStreamlit Community Cloudのシークレット設定で設定してください。"
         
         # ChatOpenAIインスタンスを作成
         llm = ChatOpenAI(
